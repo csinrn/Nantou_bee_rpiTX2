@@ -31,26 +31,27 @@ class DataReader:
         form_1 = pyaudio.paInt16 # 16-bit resolution
         chans = 1 # 1 channel
         samp_rate = 44100 # 44.1kHz sampling rate
-        chunk = 4096 # 2^12 samples for buffer
+        chunk = 512 # 2^12 samples for buffer
         dev_index = 0 # device index found by p.get_device_info_by_index(ii)
         self.audio = pyaudio.PyAudio() # create pyaudio instantiation
         # create pyaudio stream
-        self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
-                        input_device_index = dev_index,input = True, \
-                        frames_per_buffer=chunk)
+        #self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
+        #                input_device_index = dev_index,input = True, \
+        #                frames_per_buffer=chunk)
+        self.stream= 1
 
     # collect datas
     def read(self) -> str: # return string of json
-        shtd = self.sht.readSHT()
-        scaled = self.TCPsend('ACK[0D 0A]')
-        # TODO: parse scale data.
+        shtd = self.readSHT()
+        scaled = self.TCPsend('ACK\r\n')
+        scaled = float(scaled.split(',')[0])
  
         timestamp = datetime.datetime.now()
         # json = '{ "timestamp": "'+ str(timestamp) + '",   \
         #           "weight": "' + str(1) +  '",     \
         #           "temp": "' + str(shtd[0]) + '",  \
         #           "hum": "'  + str(shtd[1]) + '"}' 
-        json = f'"timestamp": "{timestamp}", "weight": "{scaled}", "temp": "{shtd[0]}", "hum": "{shtd[1]}"'
+        json = f'"timestamp": "{timestamp}", "weight": {scaled}, "temp": {shtd[0]}, "hum": {shtd[1]}'
         json = "{" + json + "}"
         return json
 
@@ -74,7 +75,6 @@ class DataReader:
         clientsock.send(bytes(msg,encoding='gbk'))
         recvdata = clientsock.recv(1024)
         res = str(recvdata,encoding='gbk')
-        print(res)
         clientsock.close()
         return res
 
@@ -95,12 +95,14 @@ class DataReader:
 if __name__ == '__main__':
     reader = DataReader()
     # test scale
-    print(reader.TCPsend('ACK[0D 0A]'))
+    while 1:
+    	#print(reader.TCPsend('ACK\r\n'))
     
     # test temp
-    print(reader.readSHT())
+        #print(reader.readSHT())
 
     # test AWS
-    datas = reader.read()
-    stat = reader.toAWS(datas)
-    print(stat)
+        datas = reader.read()
+        stat = reader.toAWS(datas)
+        print(stat)
+        sleep(2)
