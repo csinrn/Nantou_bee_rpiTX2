@@ -17,7 +17,7 @@ class DataReader:
 
         # bees data  # $dataset,$type,$act,$datex,$min,$sec,$hive,$bee_type,$dbx,$location
         self.beesin = []
-        self.beesout
+        self.beesout = []
 
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")

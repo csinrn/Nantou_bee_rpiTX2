@@ -94,15 +94,28 @@ class DataReader:
 
 if __name__ == '__main__':
     reader = DataReader()
-    # test scale
-    while 1:
-    	#print(reader.TCPsend('ACK\r\n'))
+    interval = 3  # 15 min
+    max_buffer = 2000  # store at most 2000 node when wifi disconnected. About 20 days
+    buffer = []  # buffer list for data sending failed.
     
-    # test temp
-        #print(reader.readSHT())
+    while 1:
+        data = reader.read()
+        success = reader.toAWS(data)
 
-    # test AWS
-        datas = reader.read()
-        stat = reader.toAWS(datas)
-        print(stat)
-        sleep(2)
+        # if internet connected
+        if success:
+            # check and send the buffer
+            while len(buffer) != 0:
+                success = reader.toAWS(buffer[0])
+                if success:
+                    buffer.pop(0)
+                else:
+                    break
+        # if not connected, save to buffer
+        else:
+            if len(buffer) >= max_buffer:
+                buffer.pop(0)
+                buffer.append(data)
+                
+        print(success)
+        sleep(interval)
