@@ -8,8 +8,9 @@ import datetime
 class DataReader:
     def __init__(self):
         # camera UDP
-        self.camera_ip = '0.0.0.0'
-        self.camera_port = 20021
+        self.camera_ip = '127.0.0.1'
+        self.camera_port = 20022
+
         self.addr = (self.camera_ip, self.camera_port)
         self.s = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.s.bind(self.addr)
@@ -32,13 +33,15 @@ class DataReader:
 
     # receive the UDP packages and send it back to AWS every minute.
     def run(self):
-        while self.stopped:
+        while not self.stopped:
+            print('in run loop')
             data, addr =self.s.recvfrom(512)
             if data:
-                print(data)
-            # TODO : parse data after printed.
+                data = data.decode("utf-8")
+                data = data.split(':')
+                print(data[2], data[-1])
         self.s.close()
-
+        print('run f')
     # count bees in this minute and format json to AWS
     def parse2json(self) -> str: # return string of json
         timestamp = datetime.datetime.now()
@@ -67,5 +70,6 @@ class DataReader:
 
 
 if __name__ == '__main__':
-    reader = DataReader()
-    reader.run()
+        reader = DataReader()
+        reader.run()
+        print(123)
