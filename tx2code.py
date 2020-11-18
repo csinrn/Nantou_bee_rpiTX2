@@ -17,8 +17,8 @@ class DataReader:
         self.stopped = False
 
         # bees data  # $dataset,$type,$act,$datex,$min,$sec,$hive,$bee_type,$dbx,$location
-        self.beesin = []
-        self.beesout = []
+        self.buff = []
+        self.maxbuff = 3000
 
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
@@ -33,26 +33,44 @@ class DataReader:
 
     # receive the UDP packages and send it back to AWS every minute.
     def run(self):
+        self.mqttClient.connect()
         while not self.stopped:
             print('in run loop')
             data, addr =self.s.recvfrom(512)
             if data:
+                # read from QT program
                 data = data.decode("utf-8")
                 data = data.split(':')
                 print(data[2], data[-1])
+                data = self.parse2json(data[2], data[-1])
+
+                # send to AWS
+                try:
+                    self.mqttClient.publish(self.channel, data, 1)
+                except:
+                    self.mqttClient.disconnect()
+                    try:
+                        # if reconnected, send all the buffer
+                        self.mqttClient.connect(timeout=2000)
+                        self.mqttClient.publish(self.channel, data, 1)
+                        while len(self.buff) > 0:
+                            self.mqttClient.publish(self.channel, self.buff[0], 1)
+                            self.buff.pop(0)
+                    except:
+                        #check the length of buff
+                        if len(self.buff) >= self.maxbuff:
+                            self.buff.pop(0)
+                        self.buff.append(data)
+        self.mqttClient.disconnect()
         self.s.close()
         print('run f')
     # count bees in this minute and format json to AWS
-    def parse2json(self) -> str: # return string of json
+    def parse2json(self, act, ispollen) -> str: # return string of json
         timestamp = datetime.datetime.now()
-        # json = '{ "timestamp": "'+ str(timestamp) + '",   \
-        #           "weight": "' + str(1) +  '",     \
-        #           "temp": "' + str(shtd[0]) + '",  \
-        #           "hum": "'  + str(shtd[1]) + '"}' 
-        
+        json = f'"timestamp": "{timestamp}", "act": "{act}", "ispollen": {ispollen}'
         #  json = f'"timestamp": "{timestamp}", "weight": "{scaled}", "temp": "{shtd[0]}", "hum": "{shtd[1]}"'
         # json = "{" + json + "}"
-        # return json
+        return json
 
     # send to AWS   ####### TODO: no connection. what is shadow and green grass, insert datas 
     def toAWS(self, msg:str):
