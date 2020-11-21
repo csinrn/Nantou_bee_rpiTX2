@@ -73,7 +73,9 @@ class DataReader:
     # send all buffer to AWS & clean the buffer if sent. 
     # return True for successfully sent all buffer, otherwise False
     def toAWS(self):
-        if not self.mqttClient.connect(timeout=1000):
+        try:
+            self.mqttClient.connect(timeout=1000):
+        except:
             return False
 
         # send all buffer
@@ -97,5 +99,5 @@ class DataReader:
 
 
 if __name__ == '__main__':
-        reader = DataReader()
-        reader.run()
+    reader = DataReader()
+    reader.run()

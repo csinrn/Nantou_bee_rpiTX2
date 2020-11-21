@@ -47,26 +47,22 @@ class DataReader:
         scaled = float(scaled.split(',')[0])
  
         timestamp = datetime.datetime.now()
-        # json = '{ "timestamp": "'+ str(timestamp) + '",   \
-        #           "weight": "' + str(1) +  '",     \
-        #           "temp": "' + str(shtd[0]) + '",  \
-        #           "hum": "'  + str(shtd[1]) + '"}' 
         json = f'"timestamp": "{timestamp}", "weight": {scaled}, "temp": {shtd[0]}, "hum": {shtd[1]}'
         json = "{" + json + "}"
         return json
 
-    # send to AWS   ####### TODO: no connection. what is shadow and green grass, insert datas 
+    # send to AWS
     def toAWS(self, msg:str):
-        if not self.mqttClient.connect():
+        try:
+            if not self.mqttClient.connect():
+                return False
+            self.mqttClient.publish(self.channel, msg, 1)
+            print(msg)
+            self.mqttClient.disconnect()
+            return True
+            
+        except:
             return False
-        #msg = "{ \"timestamp\": {t}, \"weight\": {w}}".format(t=timestamp, w=weight)
-        # msg = f'{ "timestamp": {timestamp}, "weight": {weight}}'
-        # msg= '{ "timestamp": "'+ str(timestamp) + '", "weight": ' + str(1) + ' }'
-        self.mqttClient.publish(self.channel, msg, 1)
-        print(msg)
-        self.mqttClient.disconnect()
-
-        return True
 
     # read scale
     def TCPsend(self, msg:str) -> str:  # eg TCPsend("ACK[0D 0A]")
@@ -94,7 +90,7 @@ class DataReader:
 
 if __name__ == '__main__':
     reader = DataReader()
-    interval = 3  # 15 min
+    interval = 3 * 60 # 15 min
     max_buffer = 2000  # store at most 2000 node when wifi disconnected. About 20 days
     buffer = []  # buffer list for data sending failed.
     
