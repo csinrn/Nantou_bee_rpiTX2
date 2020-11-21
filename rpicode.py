@@ -60,9 +60,32 @@ class DataReader:
             print(msg)
             self.mqttClient.disconnect()
             return True
-            
+
         except:
             return False
+
+    # send all buffer to AWS & clean the buffer if sent. 
+    # return True for successfully sent all buffer, otherwise False
+    def send_buffer(self, buff):
+        try:
+            self.mqttClient.connect(timeout=1000)
+        except:
+            return False
+
+        # send all buffer
+        while len(buff) > 0:
+            try:
+                success = self.mqttClient.publish(self.channel, buff[0], 1)
+                if success:
+                    buff.pop(0)
+                else:
+                    raise Exception('Publish failed')
+            except:
+                self.mqttClient.disconnect()
+                return False
+                
+        self.mqttClient.disconnect()
+        return True
 
     # read scale
     def TCPsend(self, msg:str) -> str:  # eg TCPsend("ACK[0D 0A]")
@@ -92,7 +115,7 @@ if __name__ == '__main__':
     reader = DataReader()
     interval = 3 * 60 # 15 min
     max_buffer = 2000  # store at most 2000 node when wifi disconnected. About 20 days
-    buffer = []  # buffer list for data sending failed.
+    buff = []  # buffer list for data sending failed.
     
     while 1:
         data = reader.read()
@@ -101,17 +124,14 @@ if __name__ == '__main__':
         # if internet connected
         if success:
             # check and send the buffer
-            while len(buffer) != 0:
-                success = reader.toAWS(buffer[0])
-                if success:
-                    buffer.pop(0)
-                else:
-                    break
+            while len(buff) != 0:
+                reader.send_buffer(buff)
         # if not connected, save to buffer
         else:
-            if len(buffer) >= max_buffer:
-                buffer.pop(0)
-                buffer.append(data)
+            if len(buff) >= max_buffer:
+                buff.pop(0)
+            buff.append(data)
+            
                 
         print(success)
         sleep(interval)
