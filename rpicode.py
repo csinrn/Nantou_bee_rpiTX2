@@ -55,6 +55,7 @@ class DataReader:
     def toAWS(self, msg:str):
         try:
             if not self.mqttClient.connect():
+                print('connection failed')
                 return False
                 
             success = False
@@ -67,6 +68,7 @@ class DataReader:
             if success:
                 return True
             else:
+                print("Publish failed for 3 times")
                 return False
 
         except:
@@ -100,14 +102,21 @@ class DataReader:
         return True
 
     # read scale
-    def TCPsend(self, msg:str) -> str:  # eg TCPsend("ACK[0D 0A]")
-        clientsock = socket.socket()
-        clientsock.connect(self.addr)
-        clientsock.send(bytes(msg,encoding='gbk'))
-        recvdata = clientsock.recv(1024)
-        res = str(recvdata,encoding='gbk')
-        clientsock.close()
-        return res
+    def TCPsend(self, msg:str) -> str:  # eg TCPsend("ACK\r\n")
+        try:
+            clientsock = socket.socket()
+            try:
+                clientsock.connect(self.addr)
+            except:
+                sleep(2)
+                clientsock.connect(self.addr)
+            clientsock.send(bytes(msg,encoding='gbk'))
+            recvdata = clientsock.recv(1024)
+            res = str(recvdata,encoding='gbk')
+            clientsock.close()
+            return res
+        except:
+            return -1
 
     # read in-hive temp and humidity
     def readSHT(self):
@@ -140,11 +149,11 @@ if __name__ == '__main__':
                 reader.send_buffer(buff)
         # if not connected, save to buffer
         else:
-            print('Internet not connected. Length of buffer:', len(buff))
             if len(buff) >= max_buffer:
                 buff.pop(0)
             buff.append(data)
-            
+            print('Sending failed. Length of buffer:', len(buff))
+
                 
         print(success)
         sleep(interval)
