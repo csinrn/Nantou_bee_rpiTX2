@@ -134,7 +134,7 @@ class DataReader:
 
 if __name__ == '__main__':
     reader = DataReader()
-    interval = 3 * 60 # 15 min
+    interval = 30 # 15 min
     max_buffer = 2000  # store at most 2000 node when wifi disconnected. About 20 days
     buff = []  # buffer list for data sending failed.
     
