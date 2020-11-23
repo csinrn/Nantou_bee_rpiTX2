@@ -143,7 +143,7 @@ if __name__ == '__main__':
         success = reader.toAWS(data)
 
         # if internet connected
-        if success and (len(buff)!=0):
+        if success:
             # check and send the buffer
             while len(buff) != 0:
                 reader.send_buffer(buff)
