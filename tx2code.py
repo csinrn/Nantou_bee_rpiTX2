@@ -29,7 +29,8 @@ class DataReader:
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
         self.channel = 'Nantou/bee_inout'
-        self.send_data_interval = 3 * 60 # 3min
+        self.send_data_interval = 10 # 3min
+        self.default_send_interval = 10
         self.retry_interval = 1 * 60  # 1 min 
         self.last_sendtime = time.time()
 
@@ -57,7 +58,11 @@ class DataReader:
                     success = self.toAWS()
                     print('sending success', success)
                     # if sending failed, resend in self.retry_interval
-                    self.send_data_interval = lambda success: self.send_data_interval if success else self.retry_interval
+                    if success:
+                        self.send_data_interval = self.default_send_interval
+                    else:
+                        self.send_data_interval = self.retry_interval
+                    # self.send_data_interval = lambda success: self.send_data_interval if success else self.retry_interval
                     self.last_sendtime = time.time()
 
         self.s.close()
@@ -74,14 +79,20 @@ class DataReader:
     # return True for successfully sent all buffer, otherwise False
     def toAWS(self):
         try:
-            self.mqttClient.connect(timeout=1000)
+            self.mqttClient.connect()
         except:
+            print('mqtt connect failed')
             return False
 
         # send all buffer
         while len(self.buff) > 0:
+            print('in to AWS')
             try:
-                success = self.mqttClient.publish(self.channel, self.buff[0], 1)
+                success = False
+                for i in range(3):
+                    success = self.mqttClient.publish(self.channel, self.buff[0], 1)
+                    if success:
+                        break
                 if success:
                     self.buff.pop(0)
                 else:
