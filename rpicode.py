@@ -128,6 +128,7 @@ if __name__ == '__main__':
                 reader.send_buffer(buff)
         # if not connected, save to buffer
         else:
+            print('Internet not connected. Length of buffer:', len(buff))
             if len(buff) >= max_buffer:
                 buff.pop(0)
             buff.append(data)
