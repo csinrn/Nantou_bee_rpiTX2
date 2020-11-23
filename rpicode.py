@@ -26,7 +26,7 @@ class DataReader:
         myMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
-        self.channel = 'Nantou/test'
+        self.channel = 'Nantou/bee_weight'
 
         # temperature and humid
         self.sht = SHT20(1, resolution=SHT20.TEMP_RES_14bit)
@@ -82,12 +82,13 @@ class DataReader:
     # return True for successfully sent all buffer, otherwise False
     def send_buffer(self):
         try:
-            self.mqttClient.connect(timeout=1000)
+            self.mqttClient.connect()
         except:
             return False
 
         # send all buffer
         while len(self.buff) > 0:
+            print("send buffer", self.buff[0])
             try:
                 success = False
                 for i in range(3):
@@ -120,7 +121,7 @@ class DataReader:
             clientsock.close()
             return res
         except:
-            return -1
+            return '-1, -1'
 
     # read in-hive temp and humidity
     def readSHT(self):
@@ -141,7 +142,7 @@ class DataReader:
 
 if __name__ == '__main__':
     reader = DataReader()
-    interval = 30 # 15 min
+    interval = 3 * 60 # 15 min
     
     while 1:
         data = reader.read()
@@ -152,6 +153,7 @@ if __name__ == '__main__':
             # check and send the buffer
             if len(reader.buff) != 0:
                 reader.send_buffer()
+                print("Buffer sent. Now buffer length:", len(reader.buff))
         # if not connected, save to buffer
         else:
             if len(reader.buff) >= reader.max_buffer:
@@ -159,5 +161,5 @@ if __name__ == '__main__':
             reader.buff.append(data)
             print('Sending failed. Length of buffer:', len(reader.buff))
                 
-        print(success, '/n')
+        print(success)
         sleep(interval)
