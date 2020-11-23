@@ -8,6 +8,10 @@ import pyaudio
 
 class DataReader:
     def __init__(self):
+        # buffer
+        self.max_buffer = 2000  # store at most 2000 node when wifi disconnected. About 20 days
+        self.buff = []  # buffer list for data sending failed.
+
         # scale 
         self.scale_ip = '192.168.85.210'
         self.scale_port = 59367
@@ -76,22 +80,22 @@ class DataReader:
 
     # send all buffer to AWS & clean the buffer if sent. 
     # return True for successfully sent all buffer, otherwise False
-    def send_buffer(self, buff):
+    def send_buffer(self):
         try:
             self.mqttClient.connect(timeout=1000)
         except:
             return False
 
         # send all buffer
-        while len(buff) > 0:
+        while len(self.buff) > 0:
             try:
                 success = False
                 for i in range(3):
-                    success = self.mqttClient.publish(self.channel, buff[0], 1)
+                    success = self.mqttClient.publish(self.channel, self.buff[0], 1)
                     if success:
                         break
                 if success:
-                    buff.pop(0)
+                    self.buff.pop(0) 
                 else:
                     raise Exception('Publish failed')
             except:
@@ -120,7 +124,10 @@ class DataReader:
 
     # read in-hive temp and humidity
     def readSHT(self):
-        return self.sht.read_all()   #[temp, humid]
+        try:
+            return self.sht.read_all()   #[temp, humid]
+        except:
+            return [-1, -1]
 
     def readMic(self, port:int):
         # sudo apt-get install libportaudio0 libportaudio2 libportaudiocpp0 portaudio19-dev
@@ -135,8 +142,6 @@ class DataReader:
 if __name__ == '__main__':
     reader = DataReader()
     interval = 30 # 15 min
-    max_buffer = 2000  # store at most 2000 node when wifi disconnected. About 20 days
-    buff = []  # buffer list for data sending failed.
     
     while 1:
         data = reader.read()
@@ -145,15 +150,14 @@ if __name__ == '__main__':
         # if internet connected
         if success:
             # check and send the buffer
-            while len(buff) != 0:
-                reader.send_buffer(buff)
+            if len(reader.buff) != 0:
+                reader.send_buffer()
         # if not connected, save to buffer
         else:
-            if len(buff) >= max_buffer:
-                buff.pop(0)
-            buff.append(data)
-            print('Sending failed. Length of buffer:', len(buff))
-
+            if len(reader.buff) >= reader.max_buffer:
+                reader.buff.pop(0)
+            reader.buff.append(data)
+            print('Sending failed. Length of buffer:', len(reader.buff))
                 
-        print(success)
+        print(success, '/n')
         sleep(interval)
