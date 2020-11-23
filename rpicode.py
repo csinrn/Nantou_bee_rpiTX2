@@ -56,10 +56,18 @@ class DataReader:
         try:
             if not self.mqttClient.connect():
                 return False
-            self.mqttClient.publish(self.channel, msg, 1)
+                
+            success = False
+            for i in range(3):
+                success = self.mqttClient.publish(self.channel, msg, 1)
+                if success:
+                    break
             print(msg)
             self.mqttClient.disconnect()
-            return True
+            if success:
+                return True
+            else:
+                return False
 
         except:
             return False
@@ -75,7 +83,11 @@ class DataReader:
         # send all buffer
         while len(buff) > 0:
             try:
-                success = self.mqttClient.publish(self.channel, buff[0], 1)
+                success = False
+                for i in range(3):
+                    success = self.mqttClient.publish(self.channel, buff[0], 1)
+                    if success:
+                        break
                 if success:
                     buff.pop(0)
                 else:
@@ -122,7 +134,7 @@ if __name__ == '__main__':
         success = reader.toAWS(data)
 
         # if internet connected
-        if success:
+        if success and (len(buff)!=0):
             # check and send the buffer
             while len(buff) != 0:
                 reader.send_buffer(buff)
