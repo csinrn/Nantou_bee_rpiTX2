@@ -50,8 +50,9 @@ class DataReader:
         scaled = self.TCPsend('ACK\r\n')
         scaled = float(scaled.split(',')[0])
  
-        timestamp = datetime.datetime.now()
-        json = f'"timestamp": "{timestamp}", "weight": {scaled}, "temp": {shtd[0]}, "hum": {shtd[1]}'
+        dt = datetime.datetime.now()
+        timestamp = datetime.datetime.timestamp(dt)
+        json = f'"timestamp":{timestamp}, "dt": "{dt}", "weight": {scaled}, "temp": {shtd[0]}, "hum": {shtd[1]}'
         json = "{" + json + "}"
         return json
 
@@ -142,7 +143,7 @@ class DataReader:
 
 if __name__ == '__main__':
     reader = DataReader()
-    interval = 3 * 60 # 15 min
+    interval = 10 * 60 # 15 min
     
     while 1:
         data = reader.read()
