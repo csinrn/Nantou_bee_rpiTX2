@@ -29,7 +29,7 @@ class DataReader:
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
         self.channel = 'Nantou/bee_inout'
-        self.send_data_interval = 10 # 3min
+        self.send_data_interval = 15 *60 # 3min
         self.default_send_interval = 15 * 60
         self.retry_interval = 1 * 60  # 1 min 
         self.last_sendtime = time.time()
@@ -70,8 +70,9 @@ class DataReader:
 
     # parse data from reader to json format
     def parse2json(self, act, ispollen) -> str: # return string of json
-        timestamp = datetime.datetime.now()
-        json = f'"timestamp": "{timestamp}", "act": "{act}", "ispollen": {ispollen}'
+        dt = datetime.datetime.now()
+        timestamp = datetime.datetime.timestamp(dt)
+        json = f'"timestamp": {timestamp}, "dt": "{dt}", "act": "{act}", "ispollen": {ispollen}'
         json = "{" + json + "}"
         return json
 
