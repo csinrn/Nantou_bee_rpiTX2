@@ -30,7 +30,7 @@ class DataReader:
         self.mqttClient = myMQTTClient
         self.channel = 'Nantou/bee_inout'
         self.send_data_interval = 10 # 3min
-        self.default_send_interval = 10
+        self.default_send_interval = 15 * 60
         self.retry_interval = 1 * 60  # 1 min 
         self.last_sendtime = time.time()
 
@@ -78,6 +78,7 @@ class DataReader:
     # send all buffer to AWS & clean the buffer if sent. 
     # return True for successfully sent all buffer, otherwise False
     def toAWS(self):
+        print('to AWS')
         try:
             self.mqttClient.connect()
         except:
@@ -86,7 +87,7 @@ class DataReader:
 
         # send all buffer
         while len(self.buff) > 0:
-            print('in to AWS')
+            print('in to AWS loop')
             try:
                 success = False
                 for i in range(3):
