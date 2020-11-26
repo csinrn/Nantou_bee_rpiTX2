@@ -39,9 +39,9 @@ class DataReader:
         dev_index = 0 # device index found by p.get_device_info_by_index(ii)
         self.audio = pyaudio.PyAudio() # create pyaudio instantiation
         # create pyaudio stream
-        #self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
-        #                input_device_index = dev_index,input = True, \
-        #                frames_per_buffer=chunk)
+        self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
+                        input_device_index = dev_index,input = True, \
+                        frames_per_buffer=chunk)
         self.stream= 1
 
     # collect datas
