@@ -20,7 +20,7 @@ class DataReader:
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
         myMQTTClient.configureEndpoint("a1ocikpeg4zf0y-ats.iot.us-east-2.amazonaws.com", 8883)
-        myMQTTClient.configureCredentials("./AmazonRootCA1.pem", "./781f626098-private.pem.key", "781f626098-certificate.pem.crt")
+        myMQTTClient.configureCredentials("/home/pi/Documents/Nantou_bee_rpiTX2/AmazonRootCA1.pem", "/home/pi/Documents/Nantou_bee_rpiTX2/781f626098-private.pem.key", "/home/pi/Documents/Nantou_bee_rpiTX2/781f626098-certificate.pem.crt")
         myMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
         myMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
         myMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
@@ -143,7 +143,7 @@ class DataReader:
 
 if __name__ == '__main__':
     reader = DataReader()
-    interval = 10 * 60 # 15 min
+    interval = 10 * 60 - 12 # 10 min with 12 sec of executeing time 
     
     while 1:
         data = reader.read()
