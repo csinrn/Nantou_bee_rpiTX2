@@ -22,7 +22,7 @@ class DataReader:
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
         myMQTTClient.configureEndpoint("a1ocikpeg4zf0y-ats.iot.us-east-2.amazonaws.com", 8883)
-        myMQTTClient.configureCredentials("./AmazonRootCA1.pem", "./781f626098-private.pem.key", "781f626098-certificate.pem.crt")
+        myMQTTClient.configureCredentials("/home/nvidia/Documents/Nantou_bee_rpiTX2/AmazonRootCA1.pem", "/home/nvidia/Documents/Nantou_bee_rpiTX2/781f626098-private.pem.key", "/home/nvidia/Documents/Nantou_bee_rpiTX2/781f626098-certificate.pem.crt")
         myMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
         myMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
         myMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
@@ -110,7 +110,13 @@ class DataReader:
     def stop(self):
         self.stopped = True
 
+    
+    def sendtestdata(self):
+        data = self.parse2json('Test', 1)
+        self.buff.append(data)
+        self.toAWS()
 
 if __name__ == '__main__':
     reader = DataReader()
+    reader.sendtestdata()
     reader.run()
