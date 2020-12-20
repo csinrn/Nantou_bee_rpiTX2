@@ -37,12 +37,12 @@ class DataReader:
         samp_rate = 44100 # 44.1kHz sampling rate
         chunk = 512 # 2^12 samples for buffer
         dev_index = 0 # device index found by p.get_device_info_by_index(ii)
-        self.audio = pyaudio.PyAudio() # create pyaudio instantiation
+        #self.audio = pyaudio.PyAudio() # create pyaudio instantiation
         # create pyaudio stream
-        self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
-                        input_device_index = dev_index,input = True, \
-                        frames_per_buffer=chunk)
-        self.stream= 1
+        #self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
+        #               input_device_index = dev_index,input = True, \
+        #                frames_per_buffer=chunk)
+        #self.stream= 1
 
     # collect datas
     def read(self) -> str: # return string of json
