@@ -18,7 +18,7 @@ class DataReader:
         # bees data buffer # $dataset,$type,$act,$datex,$min,$sec,$hive,$bee_type,$dbx,$location
         self.buff = []
         self.maxbuff = 3000
-        self.record_data_interval = datetime.timedelta(minutes=1)
+        self.record_data_interval = datetime.timedelta(minutes=5)
 
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
@@ -30,8 +30,8 @@ class DataReader:
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
         self.channel = 'Nantou/bee_inout'
-        self.send_data_interval = 1.5 *60 # 3min
-        self.default_send_interval = 1.5 * 60
+        self.send_data_interval = 10 *60 # 3min
+        self.default_send_interval = 15 * 60
         self.retry_interval = 1 * 60  # 1 min 
         self.last_sendtime = time.time()
 
