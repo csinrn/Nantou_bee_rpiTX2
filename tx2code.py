@@ -62,6 +62,7 @@ class DataReader:
                 # send one json per section_interval
                 now_t = datetime.datetime.now()
                 if now_time_section - now_t < self.record_data_interval :
+                    print(f'Bee added. inbee{inbee}, outbee{outbee}, inpollen{inpollen}, outpollen{outpollen}')
                     continue                
 
                 # check the length of buff
@@ -70,7 +71,7 @@ class DataReader:
                 data = self.parse2json(inbee, outbee, inpollen, outpollen)
                 self.buff.append(data)
                 inbee, outbee, inpollen, outpollen = 0, 0, 0, 0
-                print('buffer len: ', len(self.buff), 'data: ', data)
+                print('to json. buffer len: ', len(self.buff), 'data: ', data)
 
                 # send to AWS
                 interval = time.time() - self.last_sendtime
