@@ -18,7 +18,7 @@ class DataReader:
         # bees data buffer # $dataset,$type,$act,$datex,$min,$sec,$hive,$bee_type,$dbx,$location
         self.buff = []
         self.maxbuff = 3000
-        self.record_data_interval = datetime.timedelta(minutes=5)
+        self.record_data_interval = datetime.timedelta(minutes=1)
 
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
@@ -30,15 +30,15 @@ class DataReader:
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
         self.channel = 'Nantou/bee_inout'
-        self.send_data_interval = 15 *60 # 3min
-        self.default_send_interval = 15 * 60
+        self.send_data_interval = 1.5 *60 # 3min
+        self.default_send_interval = 1.5 * 60
         self.retry_interval = 1 * 60  # 1 min 
         self.last_sendtime = time.time()
 
     # receive the UDP packages and buffer or send it back to AWS
     def run(self):
         inbee, outbee, inpollen, outpollen = 0, 0, 0, 0
-        now_time_section = 0
+        now_time_section = datetime.datetime.now()
         while not self.stopped:
             print('in run loop')
             data, addr =self.s.recvfrom(512)
@@ -52,26 +52,25 @@ class DataReader:
                 # sum up per minute in(include pollenin)/out(include pollenout)/pollenin/pollenout
                 if act == 'IN':
                     inbee +=1
-                    if ispollen:
+                    if ispollen == '1':
                         inpollen += 1
                 elif act == 'OUT':
                     outbee += 1
-                    if ispollen:
+                    if ispollen == '1':
                         outpollen += 1
 
                 # send one json per section_interval
+                print(f'Bee added. inbee{inbee}, outbee{outbee}, inpollen{inpollen}, outpollen{outpollen}', '\n')
                 now_t = datetime.datetime.now()
-                if now_time_section - now_t < self.record_data_interval :
-                    print(f'Bee added. inbee{inbee}, outbee{outbee}, inpollen{inpollen}, outpollen{outpollen}')
-                    continue                
-
-                # check the length of buff
-                if len(self.buff) >= self.maxbuff:
-                    self.buff.pop(0)
-                data = self.parse2json(inbee, outbee, inpollen, outpollen)
-                self.buff.append(data)
-                inbee, outbee, inpollen, outpollen = 0, 0, 0, 0
-                print('to json. buffer len: ', len(self.buff), 'data: ', data)
+                if now_t - now_time_section > self.record_data_interval :
+                    now_time_section = now_t
+                    # check the length of buff
+                    if len(self.buff) >= self.maxbuff:
+                        self.buff.pop(0)
+                    data = self.parse2json(inbee, outbee, inpollen, outpollen)
+                    self.buff.append(data)
+                    inbee, outbee, inpollen, outpollen = 0, 0, 0, 0
+                    print('to json. buffer len: ', len(self.buff), 'data: ', data)
 
                 # send to AWS
                 interval = time.time() - self.last_sendtime
@@ -91,7 +90,7 @@ class DataReader:
     def parse2json(self, inbee, outbee, inpollen, outpollen) -> str: # return string of json
         dt = datetime.datetime.now()
         timestamp = datetime.datetime.timestamp(dt)
-        json = f'"timestamp": {timestamp}, "dt": "{dt}", "inbee": "{inbee}", "outbee": {outbee}, "inpollen": {inpollen}, "outpollen": {outpollen}, "interval": {self.record_data_interval}'
+        json = f'"timestamp": {timestamp}, "dt": "{dt}", "inbee": {inbee}, "outbee": {outbee}, "inpollen": {inpollen}, "outpollen": {outpollen}, "interval": "{self.record_data_interval}"'
         json = "{" + json + "}"
         return json
 
@@ -108,7 +107,7 @@ class DataReader:
     # send all buffer to AWS & clean the buffer if sent. 
     # return True for successfully sent all buffer, otherwise False
     def toAWS(self):
-        print('to AWS')
+        print('to AWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS')
         try:
             self.mqttClient.connect()
         except:
@@ -117,7 +116,7 @@ class DataReader:
 
         # send all buffer
         while len(self.buff) > 0:
-            print('in to AWS loop')
+            # print('in to AWS loop')
             try:
                 success = False
                 for i in range(3):
