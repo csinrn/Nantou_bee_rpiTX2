@@ -81,7 +81,7 @@ if __name__ == '__main__':
             # record and save wav
             filename = 'audios/' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.wav'
             print(filename)
-            buf, samplesize = record(time=time, device_index=1)
+            buf, samplesize = record(time=time)
             savewav(buf, samplesize, filename)
             # update time
             last_record = datetime.datetime.now()
@@ -107,4 +107,3 @@ if __name__ == '__main__':
                 fail_sent_file_list.append(filename)
                 print('Send failed ' + filename + ', resend list len: ', len(fail_sent_file_list) )
                 # buffered, and send later
-    
