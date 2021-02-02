@@ -71,16 +71,17 @@ record_interval = 15 * 60
 if __name__ == '__main__':
     last_record = datetime.datetime.now() - datetime.timedelta(seconds=time)
     fail_sent_file_list = []
+    print('Start')
     while 1:
         sleep(1)
         delta = datetime.datetime.now() - last_record 
-        if delta > datetime.timedelta(minutes=10):
+        if delta.seconds%(60*10)==0:
             print('time delta:', delta)
         if delta.seconds >= record_interval:
             # record and save wav
             filename = 'audios/' + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + '.wav'
             print(filename)
-            buf, samplesize = record(time=time)
+            buf, samplesize = record(time=time, device_index=1)
             savewav(buf, samplesize, filename)
             # update time
             last_record = datetime.datetime.now()
@@ -106,11 +107,4 @@ if __name__ == '__main__':
                 fail_sent_file_list.append(filename)
                 print('Send failed ' + filename + ', resend list len: ', len(fail_sent_file_list) )
                 # buffered, and send later
-            
-            # resend fail files
-        
-
-buf, samplesize = record(time=5)
-savewav(buf, samplesize, './test.wav')
-
-# res = upload_file('test.wav')
+    
