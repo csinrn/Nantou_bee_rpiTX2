@@ -3,3 +3,5 @@
 *.key
 ./audios/*
 credentials
+.vscode/
+.DS_Store
