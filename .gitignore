@@ -1,4 +1,5 @@
 *.crt
 *.pem
+*.key
 ./audios/*
 credentials
