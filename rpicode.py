@@ -4,7 +4,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from time import sleep
 import datetime
 from sht20 import SHT20
-import pyaudio
+# import pyaudio
 
 class DataReader:
     def __init__(self):
@@ -20,23 +20,25 @@ class DataReader:
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
         myMQTTClient.configureEndpoint("a1ocikpeg4zf0y-ats.iot.us-east-2.amazonaws.com", 8883)
-        myMQTTClient.configureCredentials("/home/pi/Documents/Nantou_bee_rpiTX2/AmazonRootCA1.pem", "/home/pi/Documents/Nantou_bee_rpiTX2/781f626098-private.pem.key", "/home/pi/Documents/Nantou_bee_rpiTX2/781f626098-certificate.pem.crt")
+        myMQTTClient.configureCredentials("/home/pi/Nantou_bee_rpiTX2/AmazonRootCA1.pem", "/home/pi/Nantou_bee_rpiTX2/781f626098-private.pem.key", "/home/pi/Nantou_bee_rpiTX2/781f626098-certificate.pem.crt")
         myMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
         myMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
         myMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
-        self.channel = 'Nantou/bee_weight'
+        self.channel = 'bee2/weight'
 
         # temperature and humid
-        self.sht = SHT20(1, resolution=SHT20.TEMP_RES_14bit)
-
+        try:    
+            self.sht = SHT20(1, resolution=SHT20.TEMP_RES_14bit)
+        except:
+            1
         # audio
-        form_1 = pyaudio.paInt16 # 16-bit resolution
-        chans = 1 # 1 channel
-        samp_rate = 44100 # 44.1kHz sampling rate
-        chunk = 512 # 2^12 samples for buffer
-        dev_index = 0 # device index found by p.get_device_info_by_index(ii)
+        #form_1 = pyaudio.paInt16 # 16-bit resolution
+        #chans = 1 # 1 channel
+        #samp_rate = 44100 # 44.1kHz sampling rate
+        #chunk = 512 # 2^12 samples for buffer
+        #dev_index = 0 # device index found by p.get_device_info_by_index(ii)
         #self.audio = pyaudio.PyAudio() # create pyaudio instantiation
         # create pyaudio stream
         #self.stream = self.audio.open(format = form_1,rate = samp_rate,channels = chans, \
@@ -52,7 +54,7 @@ class DataReader:
  
         dt = datetime.datetime.now()
         timestamp = datetime.datetime.timestamp(dt)
-        json = f'"timestamp":{timestamp}, "dt": "{dt}", "weight": {scaled}, "temp": {shtd[0]}, "hum": {shtd[1]}'
+        json = f'"timestamp":{timestamp}, "dt": "{dt}","tag":"bee2-1", "weight": {scaled}, "temp": {shtd[0]}, "hum": {shtd[1]}'
         json = "{" + json + "}"
         return json
 
@@ -68,7 +70,7 @@ class DataReader:
                 success = self.mqttClient.publish(self.channel, msg, 1)
                 if success:
                     break
-            print(msg)
+            # print(msg)
             self.mqttClient.disconnect()
             if success:
                 return True
@@ -146,7 +148,15 @@ if __name__ == '__main__':
     interval = 10 * 60 - 12 # 10 min with 12 sec of executeing time 
     
     while 1:
+        print("Start")
         data = reader.read()
+        print(data)
+        ''''''
+        #dt = datetime.datetime.now()
+        #timestamp = datetime.datetime.timestamp(dt)
+        #data = f'"timestamp": {timestamp}, "dt": "{dt}", "weight": 3.0, "temp": 17.2, "hum": 30.1'
+        #data = "{" + data + "}"
+        ''''''
         success = reader.toAWS(data)
 
         # if internet connected
