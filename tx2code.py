@@ -5,6 +5,11 @@ from time import sleep
 import datetime
 
 
+# Tomorrow:
+# compile qt program, run demo video and tx2 code, make sure udp is catched and send to aws
+# compile qt program with no demo panel, test aws
+# set the proper send interval to aws, set two .service.
+
 class DataReader:
     def __init__(self):
         # UDP setting, check QT for these settings
@@ -18,7 +23,11 @@ class DataReader:
         # bees data buffer # $dataset,$type,$act,$datex,$min,$sec,$hive,$bee_type,$dbx,$location
         self.buff = []
         self.maxbuff = 3000
-        self.record_data_interval = datetime.timedelta(minutes=5)
+
+        ''''''''''''''''''''''''''''''''''''''''''
+        # self.record_data_interval = datetime.timedelta(minutes=5)
+        self.record_data_interval = datetime.timedelta(seconds=10)
+        ''''''''''''''''''''''''''''''''''''''''''
 
         # AWS
         myMQTTClient = AWSIoTMQTTClient("ClientID")
@@ -30,9 +39,13 @@ class DataReader:
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
         self.channel = 'Nantou/bee_inout'
-        self.send_data_interval = 15 * 60 # 3min
-        self.default_send_interval = 15 * 60
-        self.retry_interval = 15 * 60  # 1 min 
+
+        ''''''''''''''''''''''''''''''''''''''''''
+        self.send_data_interval = 20 # 15 * 60 
+        self.default_send_interval = 20 # 15 * 60
+        self.retry_interval = 20 # 15 * 60
+        ''''''''''''''''''''''''''''''''''''''''''
+
         self.last_sendtime = time.time()
 
     # receive the UDP packages and buffer or send it back to AWS
