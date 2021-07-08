@@ -38,7 +38,7 @@ class DataReader:
         myMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
         myMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
         self.mqttClient = myMQTTClient
-        self.channel = 'Nantou/bee_inout'
+        self.channel = 'bee2/bee'
 
         ''''''''''''''''''''''''''''''''''''''''''
         self.send_data_interval = 20 # 15 * 60 
@@ -73,7 +73,7 @@ class DataReader:
                         outpollen += 1
 
                 # send one json per section_interval
-                print(f'Bee added. inbee{inbee}, outbee{outbee}, inpollen{inpollen}, outpollen{outpollen}', '\n')
+                print('Bee added. inbee{}, outbee{}, inpollen{}, outpollen{}'.format(inbee, outbee, inpollen, outpollen), '\n')
                 now_t = datetime.datetime.now()
                 if now_t - now_time_section > self.record_data_interval :
                     now_time_section = now_t
@@ -103,7 +103,7 @@ class DataReader:
     def parse2json(self, inbee, outbee, inpollen, outpollen) -> str: # return string of json
         dt = datetime.datetime.now()
         timestamp = datetime.datetime.timestamp(dt)
-        json = f'"timestamp": {timestamp}, "dt": "{dt}", "inbee": {inbee}, "outbee": {outbee}, "inpollen": {inpollen}, "outpollen": {outpollen}, "interval": "{self.record_data_interval}"'
+        json = '"timestamp": {}, "dt": "{}", "inbee": {}, "outbee": {}, "inpollen": {}, "outpollen": {}, "interval": "{}", "tag":"bee2-1"'.format(timestamp, dt, inbee, outbee, inpollen, outpollen, self.record_data_interval)
         json = "{" + json + "}"
         return json
 
@@ -112,7 +112,7 @@ class DataReader:
     def parse2json(self, act, ispollen) -> str: # return string of json
         dt = datetime.datetime.now()
         timestamp = datetime.datetime.timestamp(dt)
-        json = f'"timestamp": {timestamp}, "dt": "{dt}", "act": "{act}", "ispollen": {ispollen}'
+        json = f'"timestamp": {}, "dt": "{}", "act": "{}", "ispollen": {}'.format(timestamp, dt, act, ispollen)
         json = "{" + json + "}"
         return json
     '''

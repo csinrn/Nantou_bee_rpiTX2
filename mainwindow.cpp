@@ -7,14 +7,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    //ui->setupUi(this);
 
-    //setVideoName("0");
-    //process();
+    //QString q = QString::number(0);
+    //setVideoName(q);
+    process();
 
     //createCameraSignalSlots();
     socket = new QUdpSocket(this);
-    socket->bind(QHostAddress("127.0.0.1"), 20022);
+    socket->bind(QHostAddress("127.0.0.1"), 20021);
 }
 
 MainWindow::~MainWindow()
@@ -148,8 +149,8 @@ int MainWindow::process()
 
 
 
-    cv::VideoCapture capture(videofilename.toStdString());
-   //  VideoCapture capture(1);
+    //cv::VideoCapture capture(videofilename.toStdString());
+     cv::VideoCapture capture(1);
     if (!capture.isOpened())
     {
         //error in opening the video input
