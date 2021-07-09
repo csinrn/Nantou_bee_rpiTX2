@@ -1,0 +1,13 @@
+[Unit]
+Description=qtBee
+After=multi-user.target graphical.target default.target
+
+[Service]
+TYPE=forking
+WorkingDirectory=/home/nvidia/Documents/tracking_pollen_demo_code/release/
+ExecStart=/home/nvidia/Documents/tracking_pollen_demo_code/release/qtBeeservice.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
