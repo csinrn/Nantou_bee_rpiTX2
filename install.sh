@@ -15,6 +15,8 @@ mkdir -p ~/.config/systemd/user
 mkdir ~/.config/autostart
 cp ~/Documents/Nantou_bee_rpiTX2/qtBee.service ~/.config/systemd/user
 cp ~/Documents/Nantou_bee_rpiTX2/tx2code.desktop ~/.config/autostart
+cp ~/Documents/Nantou_bee_rpiTX2/mainwindow.cpp ~/Documents/tracking_pollen_demo_code/
+
 cp ~/Documents/Nantou_bee_rpiTX2/qtBeeservice.sh ~/Documents/tracking_pollen_demo_code/release/
 # network
 sudo cp ~/Documents/Nantou_bee_rpiTX2/eth0:1 /etc/network/interfaces.d/ 
