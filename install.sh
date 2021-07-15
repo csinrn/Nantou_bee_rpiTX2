@@ -6,7 +6,7 @@ sudo apt-get install python3-pip
 pip3 install awsiotpythonsdk
 
 #### move crediential ####
-mv ~/Documents/pems/* ./Nantou_bee_rpiTX2/
+mv ~/Documents/pems/* ~/Documents/Nantou_bee_rpiTX2/
 rm -r ~/Documents/pems
 
 #### move files ####
