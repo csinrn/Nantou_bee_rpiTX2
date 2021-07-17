@@ -6,7 +6,7 @@ import datetime
 import os
 from time import sleep
 
-chunk = 1024   
+chunk = 512   
 format_ = pyaudio.paInt16     # 16bit 採樣
 channels = 1
 rate = 44100 # 16000 
